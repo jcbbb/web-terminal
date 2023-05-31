@@ -1,0 +1,61 @@
+:root {
+  --white: 255, 255, 255;
+  --black: 23, 23, 23;
+
+  --neutral-500: 115, 115, 155;
+  --neutral-600: 82, 82, 82;
+  --neutral-700: 64, 64, 64;
+  --neutral-800: 39, 39, 42;
+  --neutral-900: 23, 23, 23;
+
+  --bg: var(--white);
+  --color: var(--black);
+  --header-bg: var(--neutral-700);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: var(--black);
+    --color: var(--white);
+  }
+}
+
+@font-face {
+  font-style: normal;
+  font-display: swap;
+  src: url(/public/robotomono-var.woff2) format("woff2-variations");
+  font-family: "Roboto Mono";
+  font-weight: 1 1000;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Roboto Mono";
+  background-color: rgb(var(--bg));
+  color: rgb(var(--color));
+} 
+
+.header {
+  background-color: rgb(var(--header-bg));
+  padding: 0.5rem;
+}
+
+.line {
+  padding: 0.5rem;
+  display: flex;
+}
+
+.line__editable {
+  flex: 1;
+  outline: none;
+  margin-left: 0.5rem;
+}
+ 
+::highlight(keyword) {
+  color: yellowgreen;
+}
