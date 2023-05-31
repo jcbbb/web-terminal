@@ -96,6 +96,12 @@ export class Lexer {
         tok.y = this.nextPos
         tok.kind = "RCURLY"
         break
+      case 34:
+        tok.x = this.pos + 1
+        tok.kind = "STRING"
+        tok.literal = this.readString()
+        tok.y = this.pos
+        break
       case 124:
         tok = new Token("PIPE", "|", this.pos, this.nextPos)
         this.count = -1
@@ -118,6 +124,17 @@ export class Lexer {
 
     this.eatChar()
     return tok
+  }
+
+  readString() {
+    this.eatChar();
+    let pos = this.pos
+
+    while (this.ch !== 34 && this.ch !== 0) {
+      this.eatChar()
+    }
+
+    return this.input.slice(pos, this.pos)
   }
 
   readSymbol() {
@@ -350,6 +367,9 @@ const builtins = {
   },
   "browser": function(args) {
     return args.length
+  },
+  "echo": function(args) {
+    return args.length
   }
 }
 
@@ -379,8 +399,9 @@ function evalInfixExpression(operator, left, right) {
   }
 }
 
-let input = "cd Downloads | ls -l | awk d"
+let input = `echo "Hello world"`
 let l = Lexer.from(input)
+
 let p = Parser.from(l)
 let program = p.parseProgram()
 console.log(program)
