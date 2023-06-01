@@ -1,3 +1,5 @@
+import { FS } from "./fs.js";
+
 const PRECEDENCE = {
   LOWEST: 1,
   PREFIX: 2,
@@ -23,7 +25,7 @@ function isLetter(ch) {
   * @returns {boolean}
 */
 function isSpace(ch) {
-  return ch === 32 || ch === 10 || ch === 9 || ch === 13
+  return ch === 32 || ch === 10 || ch === 9 || ch === 13 || ch === 160
 }
 
 /** Class representing a token */
@@ -195,7 +197,7 @@ class AstPrefixExpression {
   }
 }
 
-class Parser {
+export class Parser {
   constructor(lexer) {
     this.lexer = lexer
     this.curTOken = undefined
@@ -340,7 +342,7 @@ class Parser {
   }
 }
 
-function evalProgram(program = []) {
+export function evalProgram(program = []) {
   let result
   for (let node of program) {
     result = ev(node, undefined)
@@ -349,27 +351,37 @@ function evalProgram(program = []) {
   return result
 }
 
+let fs = new FS()
+
 const builtins = {
   "cd": function(args, stdin) {
-    console.log("CD", stdin)
     return args.length
   },
   "ls": function(args, stdin) {
-    console.log("LS", stdin)
-    return args.length
+    return fs.print("/")
   },
   "awk": function(args, stdin) {
-    console.log("AWK", stdin)
     return args.length
   },
   "grep": function(args) {
     return args.length
   },
-  "browser": function(args) {
-    return args.length
+  "browser": function(args, stdin) {
+    if (stdin) {
+      window.location.href = stdin
+      return
+    }
+    let url = args.map(arg => arg.value).join("")
+    window.location.href = url
   },
   "echo": function(args) {
+    return args.map(arg => arg.value).join(" ")
+  },
+  "less": function(args) {
     return args.length
+  },
+  "count": function(args, stdin) {
+    return stdin?.length
   }
 }
 
@@ -379,7 +391,7 @@ function ev(node, stdin) {
     if (fn) {
       return fn(node.args, stdin)
     }
-    return "not a function"
+    return `command not found: ${node.token.literal}`
   }
 
   if (node instanceof AstInfixExpression) {
@@ -393,15 +405,14 @@ function evalInfixExpression(operator, left, right) {
   //console.log("Operator: ", operator, "Left: ", left, "Right: ", right)
   switch (operator) {
     case "|":
-      return left + right
+      return right
     default:
       return "unnsupported operation"
   }
 }
 
-let input = `echo "Hello world"`
+let input = `lasdas`
 let l = Lexer.from(input)
-
 let p = Parser.from(l)
 let program = p.parseProgram()
 console.log(program)

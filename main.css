@@ -48,6 +48,15 @@ body {
 .line {
   padding: 0.5rem;
   display: flex;
+  flex-direction: column;
+}
+
+.line__container {
+  display: flex;
+}
+
+.line__output {
+  margin-top: 0.5rem;
 }
 
 .line__editable {

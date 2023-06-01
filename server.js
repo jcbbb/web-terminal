@@ -8,6 +8,7 @@ const ROUTES = {
     "^/$": handleHomeView,
     "^/public/client.js": serveFile("client.js", { "Content-Type": "text/javascript" }),
     "^/public/lexer.js": serveFile("lexer.js", { "Content-Type": "text/javascript" }),
+    "^/public/fs.js": serveFile("fs.js", { "Content-Type": "text/javascript" }),
     "^/public/main.css": serveFile("main.css", { "Content-Type": "text/css" }),
     "^/public/robotomono-var.woff2": serveFile("robotomono-var.woff2", { "Content-Type": "font/woff2" })
   },

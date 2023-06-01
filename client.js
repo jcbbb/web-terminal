@@ -1,9 +1,10 @@
-import { Lexer } from "./lexer.js";
+import { Lexer, Parser, evalProgram } from "./lexer.js";
 
 class Prompt {
   constructor(i, o) {
     this.input = i
     this.output = o
+    this.id = Math.random().toString(32).slice(2)
   }
 }
 
@@ -12,50 +13,93 @@ class Terminal {
     this.programs = {}
     this.history = []
     this.parent = parent
-    this.parent.append(this.createPrompt(true))
+    this.prompts = []
+
+    this.init()
   }
 
   registerProgram(program) {
     this.programs[program.name] = program
   }
 
-  createPrompt(autofocus) {
+  init() {
+    let editables = this.parent.querySelectorAll(".line__editable")
+    for (let editable of editables) {
+      editable.addEventListener("keydown", this.onKeydown.bind(this))
+    }
+  }
+
+  renderPrompt(prompt, autofocus) {
     let div = document.createElement("div");
     let editable = document.createElement("div");
     let span = document.createElement("span");
+    let output = document.createElement("div")
+    let container = document.createElement("div")
 
     span.textContent = "~"
 
-    if (autofocus) {
-      editable.setAttribute("autofocus", "true")
-    }
-
     editable.setAttribute("contenteditable", "true");
+    editable.setAttribute("id", prompt.id)
     editable.classList.add("line__editable")
-    div.classList.add("line")
+    div.classList.add("line__container")
+    container.classList.add("line")
+    output.classList.add("line__output")
 
     editable.addEventListener("keydown", this.onKeydown.bind(this));
     //editable.addEventListener("input", onInput)
 
     div.append(span, editable)
+    container.append(div, output)
+    this.parent.append(container)
+    if (autofocus) {
+      editable.focus()
+    }
+  }
 
-    return div
+  addPrompt(i, o) {
+    let prompt = new Prompt(i, o)
+    this.prompts.push(prompt)
+    return prompt
+  }
+
+  deletePrompts() {
+    this.prompts.length = 0
+  }
+
+  clearPrompts() {
+    let lines = this.parent.querySelectorAll(".line")
+    let firstLine = lines[0]
+
+    for (let i = lines.length; i >= 1; i--) {
+      let line = lines[i]
+      if (line) {
+        line.remove()
+      }
+    }
+
+    let editable = firstLine.querySelector(".line__editable")
+    let output = firstLine.querySelector(".line__output")
+    editable.setAttribute("contenteditable", "true")
+    editable.textContent = ""
+    output.textContent = ""
+    editable.focus()
   }
 
   onKeydown(e) {
-    switch (e.key) {
-      case "Enter":
-        e.preventDefault();
-        e.stopPropagation();
-        e.currentTarget.removeAttribute("contenteditable")
-        e.currentTarget.removeAttribute("autofocus")
-        let el = this.createPrompt()
-        e.target.parentNode?.insertAdjacentElement("afterend", el)
-        let editable = el.querySelector(".line__editable")
-        editable?.focus()
-        break
-      default:
-        break
+    if (e.key === "Enter") {
+      e.preventDefault();
+      e.stopPropagation();
+      e.currentTarget.removeAttribute("contenteditable")
+      e.currentTarget.removeAttribute("autofocus")
+      let input = e.currentTarget.innerText;
+      let program = Parser.from(Lexer.from(input)).parseProgram()
+      let result = evalProgram(program)
+      let line = e.currentTarget.closest(".line")
+      let output = line.querySelector(".line__output")
+      output.textContent = result
+      this.renderPrompt(this.addPrompt(), true)
+    } else if (e.ctrlKey && e.key === "l") {
+      this.clearPrompts()
     }
   }
 
