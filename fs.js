@@ -18,7 +18,7 @@ export class FS {
     if (name === "..") {
       let parts = this.currentDir.split("/")
       this.currentDir = parts.filter((p, i) => i !== parts.length - 1 && !p).join("/")
-      return ""
+      return
     }
 
     let found = this.find(this.currentDir + `/${name}`)
@@ -30,16 +30,18 @@ export class FS {
     }
 
     this.currentDir += `/${name}`
-    return ""
   }
 
   print(path = this.currentDir) {
     let found = this.find(path)
     if (found) {
       let str = ""
-      let keys = found.keys()
-      for (let key of keys) {
-        str += `${key}&emsp;`
+      for (let [key, value] of found.entries()) {
+        if (value instanceof Map) {
+          str += `<span class="keyword">${key}</span>&emsp;`
+        } else {
+          str += `${key}&emsp;`
+        }
       }
       return str
     }

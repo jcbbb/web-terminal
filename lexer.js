@@ -406,7 +406,6 @@ function ev(node, stdin) {
 }
 
 function evalInfixExpression(operator, left, right) {
-  //console.log("Operator: ", operator, "Left: ", left, "Right: ", right)
   switch (operator) {
     case "|":
       return right
@@ -414,10 +413,3 @@ function evalInfixExpression(operator, left, right) {
       return "unnsupported operation"
   }
 }
-
-let input = `lasdas`
-let l = Lexer.from(input)
-let p = Parser.from(l)
-let program = p.parseProgram()
-console.log(program)
-console.log(evalProgram(program))

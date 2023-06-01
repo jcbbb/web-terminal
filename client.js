@@ -94,9 +94,11 @@ class Terminal {
       let input = e.currentTarget.innerText;
       let program = Parser.from(Lexer.from(input)).parseProgram()
       let result = evalProgram(program)
-      let line = e.currentTarget.closest(".line")
-      let output = line.querySelector(".line__output")
-      output.innerHTML = result
+      if (result) {
+        let line = e.currentTarget.closest(".line")
+        let output = line.querySelector(".line__output")
+        output.innerHTML = result
+      }
       this.renderPrompt(this.addPrompt(), true)
     } else if (e.ctrlKey && e.key === "l") {
       this.clearPrompts()

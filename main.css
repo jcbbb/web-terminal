@@ -68,3 +68,7 @@ body {
 ::highlight(keyword) {
   color: yellowgreen;
 }
+
+.keyword {
+  color: yellowgreen;
+}
