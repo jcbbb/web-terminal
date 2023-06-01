@@ -355,10 +355,11 @@ let fs = new FS()
 
 const builtins = {
   "cd": function(args, stdin) {
-    return args.length
+    let p = args.map(arg => arg.value).join("")
+    return fs.goto(p)
   },
   "ls": function(args, stdin) {
-    return fs.print("/")
+    return fs.print()
   },
   "awk": function(args, stdin) {
     return args.length
