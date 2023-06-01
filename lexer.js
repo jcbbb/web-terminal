@@ -355,6 +355,9 @@ let fs = new FS()
 
 const builtins = {
   "cd": function(args, stdin) {
+    if (stdin) {
+      return fs.goto(stdin)
+    }
     let p = args.map(arg => arg.value).join("")
     return fs.goto(p)
   },

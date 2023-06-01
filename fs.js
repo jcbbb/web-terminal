@@ -6,7 +6,10 @@ export class FS {
       new Map([
         ["Downloads", new Map([["dow.js", { name: "dow.js" }]])],
         ["Documents", new Map([["doc.js", { name: "doc.js" }]])],
-        ["Desktop", new Map([["desktop.js", { name: "desktop.js" }]])]
+        ["Desktop", new Map([
+          ["desktop.js", { name: "desktop.js" }],
+          ["what", new Map([["what", { name: "what" }]])]
+        ])]
       ])
     ]])
   }
@@ -18,12 +21,15 @@ export class FS {
       return ""
     }
 
-    let exists = this.find(name)
-    if (!exists) {
+    let found = this.find(this.currentDir + `/${name}`)
+    if (!found) {
       return `no such file or directory: ${name}`
     }
+    if (!(found instanceof Map)) {
+      return `not a directory: ${name}`
+    }
 
-    this.currentDir += name
+    this.currentDir += `/${name}`
     return ""
   }
 
@@ -48,7 +54,10 @@ export class FS {
     let found = undefined
     while (parts.length) {
       let p = parts.shift()
-      if (p) found = root.get(p)
+      if (p) {
+        if (found) found = found.get(p)
+        else found = root.get(p)
+      }
     }
 
     return found
