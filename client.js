@@ -1,10 +1,10 @@
-import { Lexer, Parser, evalProgram } from "./lexer.js";
+import { Lexer, Parser, evalProgram, fs } from "./lexer.js";
 
 class Prompt {
   constructor(i, o) {
     this.input = i
     this.output = o
-    this.id = Math.random().toString(32).slice(2)
+    this.id = "p-" + Math.random().toString(32).slice(2)
   }
 }
 
@@ -14,6 +14,7 @@ class Terminal {
     this.history = []
     this.parent = parent
     this.prompts = []
+    this.currentPrompt = undefined
 
     this.init()
   }
@@ -35,6 +36,7 @@ class Terminal {
     let span = document.createElement("span");
     let output = document.createElement("div")
     let container = document.createElement("div")
+    let dir = document.createElement("span")
 
     span.textContent = "~"
 
@@ -44,11 +46,14 @@ class Terminal {
     div.classList.add("line__container")
     container.classList.add("line")
     output.classList.add("line__output")
+    dir.classList.add("keyword", "line__dir")
+
+    dir.textContent = fs.getCurrentDir()
 
     editable.addEventListener("keydown", this.onKeydown.bind(this));
     //editable.addEventListener("input", onInput)
 
-    div.append(span, editable)
+    div.append(span, dir, editable)
     container.append(div, output)
     this.parent.append(container)
     if (autofocus) {
@@ -85,6 +90,14 @@ class Terminal {
     editable.focus()
   }
 
+  updateCurrentDir(dir) {
+    let latest = this.prompts[this.prompts.length - 1]
+    if (latest) {
+      let editable = document.getElementById(latest.id)
+      console.log(editable)
+    }
+  }
+
   onKeydown(e) {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -92,13 +105,16 @@ class Terminal {
       e.currentTarget.removeAttribute("contenteditable")
       e.currentTarget.removeAttribute("autofocus")
       let input = e.currentTarget.innerText;
+      this.currentEditable = e.currentTarget
       let program = Parser.from(Lexer.from(input)).parseProgram()
+      let prompt = this.addPrompt()
       let result = evalProgram(program)
       if (result) {
         let line = e.currentTarget.closest(".line")
         let output = line.querySelector(".line__output")
         output.innerHTML = result
       }
+
       this.renderPrompt(this.addPrompt(), true)
     } else if (e.ctrlKey && e.key === "l") {
       this.clearPrompts()

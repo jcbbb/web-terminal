@@ -342,41 +342,33 @@ export class Parser {
   }
 }
 
-export function evalProgram(program = []) {
+export function evalProgram(program = [], env = {}) {
   let result
   for (let node of program) {
-    result = ev(node, undefined)
+    result = ev(node, env)
   }
 
   return result
 }
 
-let fs = new FS()
+export let fs = new FS()
 
 const builtins = {
-  "cd": function(args, stdin) {
-    if (stdin) {
-      return fs.goto(stdin)
+  "cd": function(args, env) {
+    if (env.stdin) {
+      return fs.goto(env.stdin)
     }
     let p = args.map(arg => arg.value).join("")
     return fs.goto(p)
   },
-  "ls": function(args, stdin) {
+  "ls": function(args, env) {
     return fs.print()
   },
-  "awk": function(args, stdin) {
+  "awk": function(args, env) {
     return args.length
   },
   "grep": function(args) {
     return args.length
-  },
-  "browser": function(args, stdin) {
-    if (stdin) {
-      window.location.href = stdin
-      return
-    }
-    let url = args.map(arg => arg.value).join("")
-    window.location.href = url
   },
   "echo": function(args) {
     return args.map(arg => arg.value).join(" ")
@@ -384,23 +376,23 @@ const builtins = {
   "less": function(args) {
     return args.length
   },
-  "count": function(args, stdin) {
-    return stdin?.length
+  "count": function(args, env) {
+    return env?.stdin?.length
   }
 }
 
-function ev(node, stdin) {
+function ev(node, env) {
   if (node instanceof AstCommand) {
     let fn = builtins[node.token.literal]
     if (fn) {
-      return fn(node.args, stdin)
+      return fn(node.args, env)
     }
     return `command not found: ${node.token.literal}`
   }
 
   if (node instanceof AstInfixExpression) {
-    let left = ev(node.left, stdin)
-    let right = ev(node.right, left)
+    let left = ev(node.left, env)
+    let right = ev(node.right, Object.assign(env, { stdin: left }))
     return evalInfixExpression(node.operator, left, right)
   }
 }

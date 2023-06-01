@@ -1,6 +1,7 @@
 export class FS {
   constructor() {
-    this.currentDir = "/"
+    this.fullPath = "/"
+    this.currentDir = ""
     this.map = new Map([[
       "/",
       new Map([
@@ -14,25 +15,33 @@ export class FS {
     ]])
   }
 
+  getCurrentDir() {
+    return this.currentDir
+  }
+
   goto(name) {
     if (name === "..") {
-      let parts = this.currentDir.split("/")
-      this.currentDir = parts.filter((p, i) => i !== parts.length - 1 && !p).join("/")
+      let parts = this.fullPath.split("/").filter(Boolean)
+      parts.pop()
+      this.fullPath = parts.join("/")
+      this.currentDir = parts[parts.length - 1]
       return
     }
 
-    let found = this.find(this.currentDir + `/${name}`)
+    let found = this.find(this.fullPath + `/${name}`)
     if (!found) {
       return `no such file or directory: ${name}`
     }
+
     if (!(found instanceof Map)) {
       return `not a directory: ${name}`
     }
 
-    this.currentDir += `/${name}`
+    this.fullPath += `/${name}`
+    this.currentDir = name
   }
 
-  print(path = this.currentDir) {
+  print(path = this.fullPath) {
     let found = this.find(path)
     if (found) {
       let str = ""

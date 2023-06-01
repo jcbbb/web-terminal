@@ -59,6 +59,11 @@ body {
   margin-top: 0.5rem;
 }
 
+.line__dir {
+  display: inline-block;
+  margin-left: 0.5rem;
+}
+
 .line__editable {
   flex: 1;
   outline: none;
