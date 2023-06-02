@@ -379,8 +379,19 @@ const builtins = {
     return env?.stdin?.length
   },
   "touch": function(args, env) {
-    let arg = args.map(arg => arg.value).join("")
-    return fs.createFile(arg)
+    if (!args.length) {
+      return "missing operand"
+    }
+    let names = args.map(arg => arg.value)
+    return fs.createFile(names)
+  },
+  "mkdir": function(args, env) {
+    if (!args.length) {
+      return "missing operand"
+    }
+
+    let names = args.map(arg => arg.value)
+    return fs.createFolder(names)
   },
   "rm": function(args, env) {
     let options = {}

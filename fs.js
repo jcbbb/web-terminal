@@ -75,14 +75,28 @@ export class FS {
     }
   }
 
-  createFile(name) {
+  createFolder(names) {
+    let found = this.find(this.currentDir)
+    if (found) {
+      for (let name of names) {
+        if (found.has(name)) {
+          return `directory already exists: ${name}`
+        }
+        found.set(name, new Map())
+      }
+    }
+  }
+
+  createFile(names) {
     let found = this.find(this.currentDir)
 
     if (found) {
-      if (found.has(name)) {
-        return `file already exists: ${name}`
+      for (let name of names) {
+        if (found.has(name)) {
+          return `file already exists: ${name}`
+        }
+        found.set(name, { name })
       }
-      found.set(name, { name })
     }
   }
 
