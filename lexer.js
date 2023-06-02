@@ -378,6 +378,10 @@ const builtins = {
   },
   "count": function(args, env) {
     return env?.stdin?.length
+  },
+  "touch": function(args, env) {
+    let arg = args.map(arg => arg.value).join("")
+    return fs.createFile(arg)
   }
 }
 

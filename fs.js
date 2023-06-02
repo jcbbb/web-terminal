@@ -56,6 +56,17 @@ export class FS {
     }
   }
 
+  createFile(name) {
+    let found = this.find(this.currentDir)
+
+    if (found) {
+      if (found.has(name)) {
+        return `file already exists: ${name}`
+      }
+      found.set(name, { name })
+    }
+  }
+
   find(path = "", base = "/") {
     let root = this.map.get(base)
     if (!root) return
