@@ -8,8 +8,8 @@ export class FS {
         ["Downloads", new Map([["dow.js", { name: "dow.js" }]])],
         ["Documents", new Map([["doc.js", { name: "doc.js" }]])],
         ["Desktop", new Map([
-          ["desktop.js", { name: "desktop.js" }],
-          ["what", new Map([["what", { name: "what" }]])]
+          ["what", new Map([["what", { name: "what" }]])],
+          ["desktop.js", { name: "desktop.js" }]
         ])]
       ])
     ]])
@@ -53,6 +53,25 @@ export class FS {
         }
       }
       return str
+    }
+  }
+
+  remove(names, options) {
+    let found = this.find(this.fullPath)
+    if (found) {
+      for (let name of names) {
+        let file = found.get(name)
+        if (file instanceof Map) {
+          // this is folder
+          if (file.size > 0 && !options.recursive) {
+            return `directory not empty: ${name}`
+          } else {
+            found.delete(name)
+          }
+        } else {
+          found.delete(name)
+        }
+      }
     }
   }
 

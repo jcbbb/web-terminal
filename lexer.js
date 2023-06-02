@@ -251,9 +251,8 @@ export class Parser {
   parseInfixExpression(left) {
     let expr = new AstInfixExpression(this.curToken, left, this.curToken.literal)
 
-    let precedence = this.curPrecedence()
     this.next()
-    expr.right = this.parseExpression(precedence)
+    expr.right = this.parseExpression()
 
     return expr
   }
@@ -263,7 +262,7 @@ export class Parser {
 
     this.next()
 
-    expr.right = this.parseExpression(PRECEDENCE.PREFIX)
+    expr.right = this.parseExpression()
 
     return expr
   }
@@ -297,7 +296,7 @@ export class Parser {
     return PRECEDENCE.LOWEST
   }
 
-  parseExpression(precedence = PRECEDENCE.LOWEST) {
+  parseExpression() {
     let prefix = this.prefixFns[this.curToken.kind]
     if (prefix == null) {
       throw new Error(`no prefix function found for: ${this.curToken.kind}`)
@@ -382,6 +381,29 @@ const builtins = {
   "touch": function(args, env) {
     let arg = args.map(arg => arg.value).join("")
     return fs.createFile(arg)
+  },
+  "rm": function(args, env) {
+    let options = {}
+
+    while (args[0]?.value === "-") {
+      args.shift()
+      let next = args.shift()
+      for (let i = 0; i < next?.value.length; i++) {
+        let ch = next.value[i]
+        if (ch === "r") {
+          options.recursive = true
+        }
+        if (ch === "f") {
+          options.force = true
+        }
+      }
+    }
+
+    if (!args.length) {
+      return "missing operand"
+    }
+
+    return fs.remove(args.map(arg => arg.value), options)
   }
 }
 
