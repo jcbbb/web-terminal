@@ -6,13 +6,13 @@ const PORT = process.env.PORT;
 const ROUTES = {
   "GET": {
     "^/$": handleHomeView,
-    "^/terminal/?$": handleHomeView,
-    "^/public/client.js": serveFile("client.js", { "Content-Type": "text/javascript" }),
-    "^/public/lexer-parser-eval.js": serveFile("lexer-parser-eval.js", { "Content-Type": "text/javascript" }),
-    "^/public/utils.js": serveFile("utils.js", { "Content-Type": "text/javascript" }),
-    "^/public/fs.js": serveFile("fs.js", { "Content-Type": "text/javascript" }),
-    "^/public/main.css": serveFile("main.css", { "Content-Type": "text/css" }),
-    "^/public/robotomono-var.woff2": serveFile("robotomono-var.woff2", { "Content-Type": "font/woff2" })
+    "^/terminal$": handleHomeView,
+    "^/terminal/public/client.js": serveFile("client.js", { "Content-Type": "text/javascript" }),
+    "^/terminal/public/lexer-parser-eval.js": serveFile("lexer-parser-eval.js", { "Content-Type": "text/javascript" }),
+    "^/terminal/public/utils.js": serveFile("utils.js", { "Content-Type": "text/javascript" }),
+    "^/terminal/public/fs.js": serveFile("fs.js", { "Content-Type": "text/javascript" }),
+    "^/terminal/public/main.css": serveFile("main.css", { "Content-Type": "text/css" }),
+    "^/terminal/public/robotomono-var.woff2": serveFile("robotomono-var.woff2", { "Content-Type": "font/woff2" })
   },
 }
 
