@@ -1,6 +1,6 @@
 import { FS } from "./fs.js";
 import { Lexer, Parser, Evaluator } from "./lexer-parser-eval.js";
-import { cd, count, ls, mkdir, rm, touch } from "./utils.js";
+import { cd, count, echo, ls, mkdir, rm, touch } from "./utils.js";
 
 class Prompt {
   constructor(i, o) {
@@ -27,6 +27,7 @@ class Terminal {
     this.registerProgram("touch", touch(this.fs))
     this.registerProgram("rm", rm(this.fs))
     this.registerProgram("mkdir", mkdir(this.fs))
+    this.registerProgram("echo", echo(this.fs))
   }
 
   registerProgram(name, func) {
