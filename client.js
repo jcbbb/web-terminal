@@ -1,4 +1,6 @@
-import { Lexer, Parser, evalProgram, fs } from "./lexer.js";
+import { FS } from "./fs.js";
+import { Lexer, Parser, Evaluator } from "./lexer-parser-eval.js";
+import { cd, count, ls, mkdir, rm, touch } from "./utils.js";
 
 class Prompt {
   constructor(i, o) {
@@ -15,12 +17,20 @@ class Terminal {
     this.parent = parent
     this.prompts = []
     this.currentPrompt = undefined
+    this.fs = new FS()
+    this.evaluator = new Evaluator()
 
     this.init()
+    this.registerProgram("cd", cd(this.fs))
+    this.registerProgram("ls", ls(this.fs))
+    this.registerProgram("count", count(this.fs))
+    this.registerProgram("touch", touch(this.fs))
+    this.registerProgram("rm", rm(this.fs))
+    this.registerProgram("mkdir", mkdir(this.fs))
   }
 
-  registerProgram(program) {
-    this.programs[program.name] = program
+  registerProgram(name, func) {
+    this.programs[name] = func
   }
 
   init() {
@@ -48,7 +58,7 @@ class Terminal {
     output.classList.add("line__output")
     dir.classList.add("keyword", "line__dir")
 
-    dir.textContent = fs.getCurrentDir()
+    dir.textContent = this.fs.getCurrentDir()
 
     editable.addEventListener("keydown", this.onKeydown.bind(this));
     //editable.addEventListener("input", onInput)
@@ -90,14 +100,6 @@ class Terminal {
     editable.focus()
   }
 
-  updateCurrentDir(dir) {
-    let latest = this.prompts[this.prompts.length - 1]
-    if (latest) {
-      let editable = document.getElementById(latest.id)
-      console.log(editable)
-    }
-  }
-
   onKeydown(e) {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -107,8 +109,7 @@ class Terminal {
       let input = e.currentTarget.innerText;
       this.currentEditable = e.currentTarget
       let program = Parser.from(Lexer.from(input)).parseProgram()
-      let prompt = this.addPrompt()
-      let result = evalProgram(program)
+      let result = this.evaluator.eval(program, { programs: this.programs })
       if (result) {
         let line = e.currentTarget.closest(".line")
         let output = line.querySelector(".line__output")
@@ -137,13 +138,6 @@ class Terminal {
     //
     //   let highlight = new Highlight(...ranges)
     //   CSS.highlights.set("keyword", highlight)
-  }
-}
-
-class Program {
-  constructor(name, exec) {
-    this.name = name;
-    this.exec = exec;
   }
 }
 

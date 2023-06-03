@@ -61,6 +61,7 @@ export class FS {
     if (found) {
       for (let name of names) {
         let file = found.get(name)
+        if (!file) return `file not found: ${name}`
         if (file instanceof Map) {
           // this is folder
           if (file.size > 0 && !options.recursive) {
@@ -118,3 +119,4 @@ export class FS {
     return found
   }
 }
+

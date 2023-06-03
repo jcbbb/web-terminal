@@ -1,5 +1,3 @@
-import { FS } from "./fs.js";
-
 const PRECEDENCE = {
   LOWEST: 1,
   PREFIX: 2,
@@ -313,9 +311,6 @@ export class Parser {
     this.next()
     leftExp = infix(leftExp)
     return leftExp
-
-
-    //return leftExp
   }
 
   next() {
@@ -341,104 +336,51 @@ export class Parser {
   }
 }
 
-export function evalProgram(program = [], env = {}) {
-  let result
-  for (let node of program) {
-    result = ev(node, env)
+export class Evaluator {
+  constructor(program = [], env = {}) {
+    this.program = program
+    this.env = env
   }
 
-  return result
-}
-
-export let fs = new FS()
-
-const builtins = {
-  "cd": function(args, env) {
-    if (env.stdin) {
-      return fs.goto(env.stdin)
+  eval(program, env) {
+    if (program) {
+      this.program = program
     }
-    let p = args.map(arg => arg.value).join("")
-    return fs.goto(p)
-  },
-  "ls": function(args, env) {
-    return fs.print()
-  },
-  "awk": function(args, env) {
-    return args.length
-  },
-  "grep": function(args) {
-    return args.length
-  },
-  "echo": function(args) {
-    return args.map(arg => arg.value).join(" ")
-  },
-  "less": function(args) {
-    return args.length
-  },
-  "count": function(args, env) {
-    return env?.stdin?.length
-  },
-  "touch": function(args, env) {
-    if (!args.length) {
-      return "missing operand"
-    }
-    let names = args.map(arg => arg.value)
-    return fs.createFile(names)
-  },
-  "mkdir": function(args, env) {
-    if (!args.length) {
-      return "missing operand"
+    if (env) {
+      this.env = env
     }
 
-    let names = args.map(arg => arg.value)
-    return fs.createFolder(names)
-  },
-  "rm": function(args, env) {
-    let options = {}
+    let result
 
-    while (args[0]?.value === "-") {
-      args.shift()
-      let next = args.shift()
-      for (let i = 0; i < next?.value.length; i++) {
-        let ch = next.value[i]
-        if (ch === "r") {
-          options.recursive = true
-        }
-        if (ch === "f") {
-          options.force = true
-        }
+    for (let node of program) {
+      result = this.evalNode(node, env)
+    }
+
+    return result
+  }
+
+  evalNode(node, env) {
+    if (node instanceof AstCommand) {
+      let fn = env.programs[node.token.literal]
+      if (fn) {
+        return fn(node.args, env)
       }
+      return `command not found: ${node.token.literal}`
     }
 
-    if (!args.length) {
-      return "missing operand"
+    if (node instanceof AstInfixExpression) {
+      let left = ev(node.left, env)
+      let right = ev(node.right, Object.assign(env, { stdin: left }))
+      return this.evalInfixExpression(node.operator, left, right)
     }
-
-    return fs.remove(args.map(arg => arg.value), options)
   }
-}
 
-function ev(node, env) {
-  if (node instanceof AstCommand) {
-    let fn = builtins[node.token.literal]
-    if (fn) {
-      return fn(node.args, env)
+  evalInfixExpression(operator, left, right) {
+    switch (operator) {
+      case "|":
+        return right
+      default:
+        return "unsupported operation"
     }
-    return `command not found: ${node.token.literal}`
-  }
-
-  if (node instanceof AstInfixExpression) {
-    let left = ev(node.left, env)
-    let right = ev(node.right, Object.assign(env, { stdin: left }))
-    return evalInfixExpression(node.operator, left, right)
-  }
-}
-
-function evalInfixExpression(operator, left, right) {
-  switch (operator) {
-    case "|":
-      return right
-    default:
-      return "unnsupported operation"
   }
 }
