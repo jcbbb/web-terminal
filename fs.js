@@ -5,12 +5,20 @@ export class FS {
     this.map = new Map([[
       "/",
       new Map([
-        ["Downloads", new Map([["dow.js", { name: "dow.js" }]])],
-        ["Documents", new Map([["doc.js", { name: "doc.js" }]])],
-        ["Desktop", new Map([
-          ["what", new Map([["what", { name: "what" }]])],
-          ["desktop.js", { name: "desktop.js" }]
-        ])]
+        ["bin", new Map()],
+        ["usr", new Map()],
+        ["etc", new Map()],
+        ["var", new Map()],
+        ["tmp", new Map()],
+        ["opt", new Map()],
+        ["boot", new Map()],
+        ["proc", new Map()],
+        ["sys", new Map()],
+        ["sbin", new Map()],
+        ["home", new Map([["yeah", new Map([
+          ["Documents", new Map()],
+          ["Downloads", new Map()]
+        ])]])],
       ])
     ]])
   }
@@ -38,7 +46,7 @@ export class FS {
     }
 
     this.fullPath += `/${name}`
-    this.currentDir = name
+    this.currentDir = name.split("/").pop()
   }
 
   print(path = this.fullPath) {
