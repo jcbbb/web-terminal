@@ -6,6 +6,7 @@ const PORT = process.env.PORT;
 const ROUTES = {
   "GET": {
     "^/$": handleHomeView,
+    "^/terminal$": handleHomeView,
     "^/public/client.js": serveFile("client.js", { "Content-Type": "text/javascript" }),
     "^/public/lexer-parser-eval.js": serveFile("lexer-parser-eval.js", { "Content-Type": "text/javascript" }),
     "^/public/utils.js": serveFile("utils.js", { "Content-Type": "text/javascript" }),
