@@ -2,7 +2,7 @@ import http, { IncomingMessage, ServerResponse } from "http";
 import fs from "fs";
 import path from "path";
 
-const PORT = 3000;
+const PORT = process.env.PORT;
 const ROUTES = {
   "GET": {
     "^/$": handleHomeView,
